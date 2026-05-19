@@ -60,25 +60,122 @@ export default class AudioPlayer {
     return { gain, jcReverb, reverb };
   }
 
-  /* Generates one polyphonic synth for each track in the piece. */
-  generateSynths(effects) {
-    this.activeInstruments = [];
-
-    const synthOptions = {
-      oscillator: {
-        type: 'triangle'
+  getSynthSettings(instrument) {
+    const settings = {
+      violin: {
+        voice: Tone.FMSynth,
+        voices: 10,
+        options: {
+          harmonicity: 1.4,
+          modulationIndex: 4,
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.04,
+            decay: 0.12,
+            sustain: 0.55,
+            release: 0.9
+          },
+          modulation: { type: 'triangle' },
+          modulationEnvelope: {
+            attack: 0.08,
+            decay: 0.2,
+            sustain: 0.25,
+            release: 0.6
+          }
+        }
       },
-      envelope: {
-        attack: 0.02,
-        decay: 0.08,
-        sustain: 0.45,
-        release: 0.7
+      'string ensemble 1': {
+        voice: Tone.Synth,
+        voices: 14,
+        options: {
+          oscillator: { type: 'sine' },
+          envelope: {
+            attack: 0.08,
+            decay: 0.15,
+            sustain: 0.6,
+            release: 1.1
+          }
+        }
+      },
+      viola: {
+        voice: Tone.Synth,
+        voices: 10,
+        options: {
+          oscillator: { type: 'triangle' },
+          envelope: {
+            attack: 0.05,
+            decay: 0.14,
+            sustain: 0.5,
+            release: 0.85
+          }
+        }
+      },
+      cello: {
+        voice: Tone.MonoSynth,
+        voices: 8,
+        options: {
+          oscillator: { type: 'triangle' },
+          filter: {
+            Q: 1,
+            type: 'lowpass',
+            rolloff: -24
+          },
+          envelope: {
+            attack: 0.04,
+            decay: 0.18,
+            sustain: 0.58,
+            release: 0.9
+          },
+          filterEnvelope: {
+            attack: 0.06,
+            decay: 0.25,
+            sustain: 0.35,
+            release: 0.8,
+            baseFrequency: 180,
+            octaves: 2.2
+          }
+        }
+      },
+      contrabass: {
+        voice: Tone.MonoSynth,
+        voices: 6,
+        options: {
+          oscillator: { type: 'sine' },
+          filter: {
+            Q: 1,
+            type: 'lowpass',
+            rolloff: -24
+          },
+          envelope: {
+            attack: 0.02,
+            decay: 0.2,
+            sustain: 0.62,
+            release: 1.0
+          },
+          filterEnvelope: {
+            attack: 0.03,
+            decay: 0.25,
+            sustain: 0.28,
+            release: 0.9,
+            baseFrequency: 80,
+            octaves: 2
+          }
+        }
       }
     };
 
+    return settings[instrument] || settings.viola;
+  }
+
+  /* Generates one synth voice for each track in the piece. */
+  generateSynths(effects) {
+    this.activeInstruments = [];
+
     this.props.song.tracks.forEach((track) => {
+      const synth = this.getSynthSettings(track.instrument);
+
       this.activeInstruments.push(track.instrument);
-      track.sampler = new Tone.PolySynth(12, Tone.Synth, synthOptions)
+      track.sampler = new Tone.PolySynth(synth.voices, synth.voice, synth.options)
         .chain(effects.gain, effects.jcReverb, effects.reverb, Tone.Master);
     });
   }
