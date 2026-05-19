@@ -1,78 +1,117 @@
-<table>
-  <tr>
-    <td>
-      This project is no longer actively maintained by the Google Creative Lab but remains here in a read-only Archive mode so that it can continue to assist developers that may find the examples helpful. We aren’t able to address all pull requests or bug reports but outstanding issues will remain in read-only mode for reference purposes. Also, please note that some of the dependencies may not be up to date and there hasn’t been any QA done in a while so your mileage may vary.
-      <br><br>
-      For more details on how Archiving affects Github repositories see <a href="https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-archiving-repositories">this documentation </a>.
-      <br><br>
-      <b>We welcome users to fork this repository</b> should there be more useful, community-driven efforts that can help continue what this project began.
-    </td>
-  </tr>
-</table>
+# Semi-Conductor Classroom Edition
 
-# Semi-Conductor 🎻
+This fork is a classroom-friendly rescue version of Google Creative Lab's archived
+Semi-Conductor experiment. It keeps the original Parcel 1, Tone.js, TensorFlow.js,
+PoseNet, and PIXI.js stack, but makes the project usable in modern Chrome and easy
+to deploy as a static site.
 
-![An animation of Semi-Conductor in action.](semi-conductor.gif)
+The student-facing UI has been translated into Traditional Chinese.
 
-[Semi-Conductor](https://semiconductor.withgoogle.com) allows you to conduct a virtual orchestra using only your web browser & webcam. Try it out [live here](https://semiconductor.withgoogle.com)!
+## What Changed
 
-It uses [Posenet](https://github.com/tensorflow/tfjs-models/tree/master/posenet) to detect your body pose, and from that how fast you are moving your hands. Using this data and the [Tone.js](https://github.com/Tonejs/Tone.js/) web audio library, it plays real samples of orchestral instruments playing individual notes at the speed of your conducting, which play live from a score you that can edit.
-
-It's been build to be remixed, so read on to learn how to build and edit your own version of Semi-Conductor, with custom music and instruments.
+- Adds a full-screen "點一下開始" gate before the app initializes.
+- Starts Web Audio only after a user click/tap, which modern Chrome requires.
+- Keeps webcam and PoseNet conducting controls enabled.
+- Uses Tone.js synth voices as the main audio engine.
+- Does not load instrument sample files.
+- Builds as a static site into `dist`.
+- Keeps the old Parcel 1 build system instead of modernizing the project.
 
 ## Quick Start
 
 ```sh
-yarn  # Install dependencies
+yarn
 ```
+
 ```sh
-yarn start  # Start a local dev server
+yarn start
 ```
+
+Then open:
+
+```txt
+http://localhost:1234
+```
+
+Build the static site:
+
 ```sh
-yarn build  # Build static site into the /dist folder
+yarn build
+```
+
+The deployable output is:
+
+```txt
+dist/index.html
+dist/static/
+```
+
+## How Students Use It
+
+1. Open the deployed HTTPS URL in Chrome.
+2. Click `點一下開始`.
+3. Click `開始`.
+4. Allow camera access.
+5. Follow the tutorial.
+6. Stand in frame and conduct with arm movements.
+
+Sound is generated with built-in Tone.js synths. No sample files are required.
+
+## Deploying To Vercel
+
+Use these Vercel project settings:
+
+```txt
+Framework Preset: Other
+Install Command: yarn
+Build Command: yarn build
+Output Directory: dist
+```
+
+The webcam requires HTTPS for students on other computers, so deploy to Vercel or
+another HTTPS static host rather than sharing a local `localhost` URL.
+
+Terminal deployment also works:
+
+```sh
+npx vercel
+```
+
+For production:
+
+```sh
+npx vercel --prod
 ```
 
 ## Code Structure
 
-Semi-Conductor is built in vanilla JS without a framework. Each JS file in the `/scripts` folder contains a class module, with each class controlling one portion of the app (also there are some helper files with useful functions). It's designed so that modules can be used or deleted according to how you want to remix the app.
+Semi-Conductor is built in vanilla JavaScript without a framework.
 
-- `main.js` controls the primary app state & functions, including loading the app and instantiating the other classes
-- `renderer.js` handles all the UI/DOM updating
-- `orchestra.js` controls the graphic of the orchestra, made with PIXI.js
-- `pose-controller.js` uses TFJS to get the pose state from the webcam with Posenet
-- `posenet-renderer.js` renders the pose skeleton in the interface
-- `audio-player.js` handles the MIDI playback & loading of samples using Tone.js
+- `src/scripts/boot.js` waits for the first click/tap before loading the app.
+- `src/scripts/main.js` controls primary app state and loading.
+- `src/scripts/renderer.js` handles DOM and UI updates.
+- `src/scripts/orchestra.js` handles the PIXI orchestra graphics.
+- `src/scripts/pose-controller.js` uses TensorFlow.js/PoseNet for webcam pose state.
+- `src/scripts/posenet-renderer.js` renders the pose skeleton.
+- `src/scripts/audio-player.js` plays the MIDI score with Tone.js synth voices.
 
-## How to remix this
+## Notes For Teachers
 
-#### Adding instrument samples
+This version intentionally avoids external audio samples. That makes it more stable
+for classroom deployment and avoids the original archive's missing sample-file issue.
 
-We haven't included the original audio samples used in the live [Semi-Conductor experiment](https://semiconductor.withgoogle.com), but you can use an open sound library like [Sonatina Symphonic Orchestra](https://github.com/peastman/sso) (just make sure you have the rights to use samples you choose in accordance to their licence agreement), or even record your own.
+The original project is old, so dependency warnings from TensorFlow source maps or
+Browserslist may appear during build. They are non-fatal if `yarn build` completes.
 
-Add your samples to `/static/samples`, and then add to `/src/assets/samples.json` the relative paths from the `/static/samples` directory to each sample. Samples are organised first by instrument name, then by note. Note descriptions are of the format `C4` for middle C, or `D#5` for the D sharp the octave above middle C. You don't need to have all the notes for a given instrument, Tone.js will interpolate between the samples you have provided.
+## Original Project
 
-#### Changing instrumentation
+Original project by Google Creative Lab:
 
-Semi-Conductor is designed to work with a string quartet, however you can change the instrumentation as you desire. Create a rock band, percussion ensemble or synth orchestra if you want! If you're low on disk space, you could even replicate John Cage's [4'33"](https://youtu.be/Oh-o3udImy8?t=57).
+https://github.com/googlecreativelab/semi-conductor
 
-Follow the steps above with whichever instruments & samples you want to add. Then, edit `config.js` to include the instrument names you want to have play for each zone (instruments change as you move your hands from the left to the right of the screen while conducting). 
+This fork is not an official Google product.
 
-You will also need to have a `song.json` file (see below) that only contains instrument names that correspond the ones in `samples.json`. You may need to remove or edit the `orchestra.js` module, as it will break if it doesn't recognise the instrument names.
+## License
 
-#### Changing the MIDI song
-
-The current MIDI song is a custom arrangement of Mozart's *Eine Kleine Nachtmusik* made by us. But you can swap this out with any MIDI file, you just need to convert it to JSON and make sure you have samples listed in `samples.json` with the same instrument names as the tracks.
-
-To build a `song.json` file, create or acquire a MIDI file you want to use. Then, head to [this Tone.js website](http://tonejs.github.io/Midi/) to convert the MIDI into a JSON file that Tone.js can read. Go through the JSON file and edit the instrument names to correspond to the instrument names in `samples.json` and then move this file to `/src/assets/song.json`.
-
-## Contributors
-
-Built by [Rupert Parry](https://www.rparry.me/), [Melissa Lu](https://melissaludesigns.com/), Samantha Cordingley, [Haylie Craig](https://www.hayliecraig.com/), and the team at Google Creative Lab, Sydney.
-
-## License & Notes
-
-Semi-Conductor has been made available under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0) (see LICENSE file in this repository for details).
-
-We encourage open sourcing projects as a way of learning from each other. Please respect our and other creators’ rights, including copyright and trademark rights when present when sharing these works and creating derivative work. If you want more info on Google's policy, you can find it [here](https://www.google.com/permissions/). To contribute to the project, please refer to the CONTRIBUTING file in this repository.
-
-This is an experiment, not an official Google product. We do our best to support and maintain this experiment, but your mileage may vary. 
+Semi-Conductor was made available under the Apache 2.0 license. See `LICENSE` for
+details.

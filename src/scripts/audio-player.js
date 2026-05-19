@@ -26,7 +26,6 @@ import { getBeatLengthFromTempo, constrain } from './helpers';
 export default class AudioPlayer {
   constructor(props) {
     this.props = props;
-    this.instrumentsLoaded = 0;
     this.activeInstruments = [];
     this.velocity = 0.7;  // Arbitrary starting point that will be overridden by user
     this.finishedInstruments = 0;
@@ -42,9 +41,15 @@ export default class AudioPlayer {
     });
   }
 
-  /* Set up effects, then call function to generate samplers */
+  /* This classroom version intentionally uses synth voices instead of samples. */
   async loadInstruments() {
-    // Make it sounds nice
+    const effects = await this.createEffects();
+    this.generateSynths(effects);
+    this.props.setInstrumentsLoaded(100);
+  }
+
+  async createEffects() {
+    // Make it sound nice
     const gain = new Tone.Gain(config.tone.gain);
     const jcReverb = new Tone.JCReverb();
     const reverb = new Tone.Reverb(config.tone.reverb);
@@ -52,29 +57,37 @@ export default class AudioPlayer {
     reverb.wet.value = config.tone.reverbWet;
     await reverb.generate();
 
-    this.generateSamplers({ gain, jcReverb, reverb });
+    return { gain, jcReverb, reverb };
   }
 
-  /* Generates samplers for each track in the piece */
-  generateSamplers(effects) {
-    // Instruments should be given their official MIDI name, but lowercase,
-    // e.g. 'cello'. This will be under tracks[i].instrument in the song json.
+  /* Generates one polyphonic synth for each track in the piece. */
+  generateSynths(effects) {
+    this.activeInstruments = [];
+
+    const synthOptions = {
+      oscillator: {
+        type: 'triangle'
+      },
+      envelope: {
+        attack: 0.02,
+        decay: 0.08,
+        sustain: 0.45,
+        release: 0.7
+      }
+    };
+
     this.props.song.tracks.forEach((track) => {
       this.activeInstruments.push(track.instrument);
-      track.sampler = new Tone.Sampler(
-        this.props.samples[track.instrument], // Sample URLs in samples.json
-        this.instrumentLoadCallback.bind(this), // Tells main.js the loading progress
-        config.paths.samplesPath // Root path for samples
-      ).chain(effects.gain, effects.jcReverb, effects.reverb, Tone.Master);
+      track.sampler = new Tone.PolySynth(12, Tone.Synth, synthOptions)
+        .chain(effects.gain, effects.jcReverb, effects.reverb, Tone.Master);
     });
   }
 
-  /* Go through each track and trigger load function */
+  /* Queue the score on Tone.Transport. */
   queueSong() {
     const song = this.props.song;
     const startTime = this.props.song.startTime;
 
-    // Queue each of the tracks
     Tone.Transport.bpm.value = this.startingBpm = song.header.bpm;
     Tone.Transport.timeSignature = song.header.timeSignature;
     song.tracks.forEach((track) => {
@@ -84,8 +97,10 @@ export default class AudioPlayer {
     Tone.Transport.position = startTime;
   }
 
-  /* Add all notes to the Transport, with the relevant instrument */
+  /* Add all notes to the Transport, with the relevant synth. */
   queueTrack(track, instrument) {
+    if (!instrument) return;
+
     new Tone.Part((time, note) => {
       const measures = parseInt(Tone.Transport.position.split(':')[0]) + 1;
       this.props.setSongProgress(100 * measures / this.totalMeasures)
@@ -104,21 +119,10 @@ export default class AudioPlayer {
           min: config.detection.minimumVelocity
         });
 
-        // Add a small time variation around 0 to make it sound more human
-        // const variation = (Math.random() - 0.5) * 0.03;
-        // Cue a note to be triggered at the time, with the pitch and duration
-        instrument.triggerAttackRelease(note.name, duration, time, velocity); 
+        instrument.triggerAttackRelease(note.name, duration, time, velocity);
         this.props.triggerAnimation(track.instrument, duration, this.velocity);
       }
     }, track.notes).start();
-  }
-
-  /* Updates the loading screen with current progress */
-  instrumentLoadCallback() {
-    this.instrumentsLoaded++;
-    const totalTracks = this.props.song.tracks.length;
-    const percentage = 100 * this.instrumentsLoaded / totalTracks;
-    this.props.setInstrumentsLoaded(percentage);
   }
 
   /* Change which instruments are playing based on PoseController data */

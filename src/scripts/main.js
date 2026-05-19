@@ -19,10 +19,8 @@ specific language governing permissions and limitations
 under the License.
 */
 
-// Import this or horrible, inexplicable errors happen ¯\_(ツ)_/¯ -- https://github.com/parcel-bundler/parcel/issues/1762
-import 'babel-polyfill';
-
 // Import modules
+import Tone from 'tone';
 import Renderer from './renderer';
 import AudioPlayer from './audio-player';
 import PoseController from './pose-controller';
@@ -30,7 +28,6 @@ import PoseController from './pose-controller';
 // Import json files
 import config from '../config.js';
 import song from '../assets/song.json';
-import samples from '../assets/samples.json';
 
 class App {
   constructor(config) {
@@ -56,7 +53,6 @@ class App {
 
     this.audioPlayer = new AudioPlayer({
       song: song,
-      samples: samples,
       setInstrumentsLoaded: this.setInstrumentsLoaded.bind(this),
       setSongProgress: this.setSongProgress.bind(this),
       triggerAnimation: this.renderer.triggerAnimation.bind(this.renderer)
@@ -75,7 +71,7 @@ class App {
     });
   }
 
-  /* Called with percentage each time instrument samples loaded */
+  /* Called when synth setup finishes loading */
   setInstrumentsLoaded(percentage) {
     this.state.percentageLoaded = percentage;
     this.setLoadProgress();
@@ -87,7 +83,7 @@ class App {
     this.setLoadProgress();
   }
 
-  /* Combines load progress of both graphics & samples
+  /* Combines load progress of both graphics & synth setup
      to make sure app is fully loaded before starting */
   setLoadProgress() {
     let percentage;
@@ -161,4 +157,20 @@ class App {
   }
 }
 
-const app = new App(config);
+async function resumeAudioContext() {
+  const context = Tone && Tone.context;
+  if (context && context.resume && context.state !== 'running') {
+    try {
+      await context.resume();
+    } catch (error) {
+      console.warn('Unable to resume Tone audio context:', error);
+    }
+  }
+}
+
+export async function startApp() {
+  // Modern Chrome requires Web Audio to be resumed or created after a user
+  // gesture. boot.js calls this from the full-screen start overlay click/tap.
+  await resumeAudioContext();
+  return new App(config);
+}

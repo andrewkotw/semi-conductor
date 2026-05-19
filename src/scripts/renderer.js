@@ -80,9 +80,8 @@ export default class Renderer {
       this.elems.html.classList.add('is-mobile');
       this.elems.body.classList.add('is-mobile');
       show(this.pages.error, 'flex');
-      this.elems.errorText.innerHTML = `This experience works best in a
-        desktop browser – your orchestra is waiting for you there.
-      <br><br><a class="button button-large" href='mailto:?subject=${encodeURIComponent("Note to self: check out Semi-Conductor")}&body=${encodeURIComponent("Dear me, remember earlier today you were checking out that conducting experience? Here is the link for it: semiconductor.withgoogle.com")}'>Email a reminder</a>`;
+      this.elems.errorText.innerHTML = `這個體驗最適合在桌上型電腦或筆電的瀏覽器中使用。
+      <br><br><a class="button button-large" href='mailto:?subject=${encodeURIComponent("提醒自己：試試 Semi-Conductor")}&body=${encodeURIComponent("這是一個可以用攝影機指揮 AI 管弦樂團的網頁體驗：semiconductor.withgoogle.com")}'>寄提醒信給自己</a>`;
     }
   }
 
@@ -112,7 +111,7 @@ export default class Renderer {
 
     if (progress === 100) {
       // Make button active
-      this.elems.startButton.innerHTML = "Start";
+      this.elems.startButton.innerHTML = "開始";
       this.elems.startButton.disabled = false;
     }
   }
@@ -335,7 +334,7 @@ export default class Renderer {
   /* Called if webcam error */
   renderVideoError() {
     show(this.pages.error, 'flex');
-    this.elems.errorText.innerHTML = "The orchestra needs to see its conductor! Please connect your webcam or allow us to access it, and refresh the page.";
+    this.elems.errorText.innerHTML = "樂團需要看見指揮！請連接攝影機，或允許瀏覽器使用攝影機，然後重新整理頁面。";
   }
 
   /* Called when the experience restarts */
@@ -357,7 +356,7 @@ export default class Renderer {
     hide(this.pages.main);
     show(this.pages.start, 'flex');
     this.elems.calibrationOverlay.classList.remove('success');
-    document.querySelector('.instructions p').innerHTML = "Fit your body in frame, Maestro. This is a one person experiment.";
+    document.querySelector('.instructions p').innerHTML = "請讓全身進入畫面。這個體驗一次適合一位指揮。";
     document.querySelector('.instructions p').style.transform = "scale(1)";
   }
 }

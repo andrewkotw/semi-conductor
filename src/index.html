@@ -21,7 +21,7 @@ under the License.
 
 <!doctype html>
 
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,14 +44,14 @@ under the License.
 
   <!-- Schema.org markup for Google+ (goodnight, sweet prince) -->
   <meta itemprop="name" content="Semi-Conductor">
-  <meta itemprop="description" content="An AI experiment to conduct an orchestra inside your web browser.">
+  <meta itemprop="description" content="用瀏覽器與攝影機指揮 AI 管弦樂團的實驗。">
   <meta itemprop="image" content="https://semiconductor.withgoogle.com/static/share_image.jpg">
 
   <!-- Twitter card data -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@google">
   <meta name="twitter:title" content="Semi-Conductor">
-  <meta name="twitter:description" content="An AI experiment to conduct an orchestra inside your web browser.">
+  <meta name="twitter:description" content="用瀏覽器與攝影機指揮 AI 管弦樂團的實驗。">
   <meta name="twitter:creator" content="@google">
   <meta name="twitter:image:src" content="https://semiconductor.withgoogle.com/static/share_image.jpg">
 
@@ -61,23 +61,32 @@ under the License.
   <meta property="og:url" content="https://semiconductor.withgoogle.com" />
   <meta property="og:image" content="http://semiconductor.withgoogle.com/static/share_image.jpg" />
   <meta property="og:image:secure_url" content="https://semiconductor.withgoogle.com/static/share_image.jpg" />
-  <meta property="og:description" content="An AI experiment to conduct an orchestra inside your web browser." />
+  <meta property="og:description" content="用瀏覽器與攝影機指揮 AI 管弦樂團的實驗。" />
 
   <!-- Favicons, fonts, stylesheets & scripts -->
   <link rel="icon" type="image/png" href="assets/favicon-32x32.png" sizes="32x32" />
   <link rel="icon" type="image/png" href="assets/favicon-16x16.png" sizes="16x16" />
   <link href="https://fonts.googleapis.com/css?family=Poppins:400" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.scss">
-  <script src="scripts/main.js" defer></script>
+  <script src="scripts/boot.js" defer></script>
 </head>
 
 <!-- Hey nice, there's a bit of room down here for the body -->
 <body>
+  <div class="gesture-start-overlay">
+    <button class="button-large gesture-start-button">
+      點一下開始
+    </button>
+    <p class="gesture-start-text">
+      Chrome 需要先點擊畫面，才能啟動音訊。
+    </p>
+  </div>
+
   <div class="page-error">
     <div class="error-container">
-      <img src="assets/error.svg" alt="A broken treble clef sign" />
-      <h2 class="error-title">We're in treble.</h2>
-      <p class="error-text">Something went wrong and I don't know what it is. Maybe you could just... sing along?</p>
+      <img src="assets/error.svg" alt="壞掉的高音譜記號" />
+      <h2 class="error-title">遇到一點小狀況。</h2>
+      <p class="error-text">發生了一些問題。請重新整理頁面後再試一次。</p>
     </div>
   </div>
 
@@ -90,21 +99,15 @@ under the License.
   <section class="page-info">
     <div class="info-content-outer">
       <div class="info-content">
-        <h1>How It Works</h1>
-        <p>Semi-Conductor is an experiment that lets you conduct your own
-          orchestra through your browser. You can move your arms to change
-          the tempo, volume, and instrumentation of a piece of music.</p>
-        <p>It uses Tensorflow.js, a machine learning library that works
-          in the browser, to map out your movements through your webcam.
-          An algorithm plays along to the score as you conduct, using hundreds
-          of tiny audio files from live recorded instruments.</p>
-        <p>Find more information about PoseNet
+        <h1>運作方式</h1>
+        <p>Semi-Conductor 是一個讓你在瀏覽器中指揮管弦樂團的實驗。你可以移動手臂，改變樂曲的速度、音量與正在演奏的聲部。</p>
+        <p>它使用 TensorFlow.js 這個能在瀏覽器中執行的機器學習工具，透過攝影機判讀你的身體動作。當你指揮時，程式會依照樂譜用合成器播放音符，方便在教室裡穩定使用。</p>
+        <p>想了解更多 PoseNet，可以閱讀
           <a href="https://medium.com/tensorflow/real-time-human-pose-estimation-in-the-browser-with-tensorflow-js-7dd0bc881cd5" target="_blank">
-          on the TensorFlow blog</a>.</p>
+          TensorFlow 部落格</a>。</p>
         <p>
-        <p>Built by Rupert Parry, Melissa Lu, Haylie Craig and Samantha
-          Cordingley from Google Creative Lab, Sydney.</p>
-        <p><button class="button-info-close">Back</button></p>
+        <p>由 Google Creative Lab Sydney 的 Rupert Parry、Melissa Lu、Haylie Craig 與 Samantha Cordingley 製作。</p>
+        <p><button class="button-info-close">返回</button></p>
       </div>
     </div>
   </section>
@@ -114,9 +117,9 @@ under the License.
     <div class="roses-container"></div>
     <div class="finish-content-outer">
       <div class="finish-content">
-        <p class="finish-text">Bravo!</p>
+        <p class="finish-text">太棒了！</p>
         <button class="button-restart button-large">
-          Play Again
+          再玩一次
         </button>
       </div>
     </div>
@@ -128,10 +131,10 @@ under the License.
       <h1 class="start-logo">
         <img src="assets/logo.gif" alt="Semi-Conductor" class="start-logo-image">
       </h1>
-      <h2 class="start-subtitle">Conduct an AI orchestra through your browser</h2>
+      <h2 class="start-subtitle">用瀏覽器指揮 AI 管弦樂團</h2>
       <div class="start-button-container">
         <button class="button-large progress start-button" disabled>
-          Loading...
+          載入中...
         </button>
       </div>
     </div>
@@ -139,7 +142,7 @@ under the License.
     <footer class="start-footer">
       <img src="assets/footer-intro.svg"
         class="start-footer-image"
-        alt="This is an A.I. Experiment. Made with some friends from Google.">
+        alt="這是一個 AI Experiment，由 Google 的朋友們共同製作。">
     </footer>
   </section>
 
@@ -148,40 +151,40 @@ under the License.
     <section class="tutorial-part tutorial-part-1">
       <div class="card tutorial-part-content">
         <div class="tutorial-text">
-          Make the orchestra play by moving your arms.
-          <br>The faster you go, the faster they go.
+          揮動你的手臂，讓樂團開始演奏。
+          <br>你動得越快，音樂也會越快。
         </div>
         <div class="tutorial-image">
           <img src="assets/tutorial-conducting.gif">
         </div>
         <div class="tutorial-controls">
-          <button class="button-large tutorial-next">Next</button>
+          <button class="button-large tutorial-next">下一步</button>
         </div>
       </div>
     </section>
     <section class="tutorial-part tutorial-part-2">
       <div class="card tutorial-part-content">
         <div class="tutorial-text">
-          Move up and down to play louder and softer
+          上下移動雙手，控制音量大小。
         </div>
         <div class="tutorial-image">
           <img src="assets/tutorial-volume.gif">
         </div>
         <div class="tutorial-controls">
-          <button class="button-large tutorial-next">Next</button>
+          <button class="button-large tutorial-next">下一步</button>
         </div>
       </div>
     </section>
     <section class="tutorial-part tutorial-part-3">
       <div class="card tutorial-part-content">
         <div class="tutorial-text">
-          Move from side-to-side to control which sections play
+          左右移動雙手，控制哪些聲部演奏。
         </div>
         <div class="tutorial-image">
           <img src="assets/tutorial-sections.gif">
         </div>
         <div class="tutorial-controls">
-          <button class="button-large tutorial-end">Let's go</button>
+          <button class="button-large tutorial-end">開始指揮</button>
         </div>
       </div>
     </section>
@@ -192,10 +195,10 @@ under the License.
     <nav class="main-topbar">
       <div class="main-topbar-buttons">
         <button class="button-restart">
-          <img src="assets/icon-restart.svg" alt="Restart">
+          <img src="assets/icon-restart.svg" alt="重新開始">
         </button>
         <button class="button-info">
-            <img src="assets/icon-info.svg" alt="Info">
+            <img src="assets/icon-info.svg" alt="說明">
         </button>
       </div>
       <div class="timebar">
@@ -210,7 +213,7 @@ under the License.
             <div class="tempo-icon-container">
               <div class="tempo-icon">
                 <img src="assets/metronome.svg">
-                <div class="tempo-icon-label">TEMPO</div>
+                <div class="tempo-icon-label">速度</div>
               </div>
               
             </div>
@@ -228,10 +231,10 @@ under the License.
 
     <div class="video-outer">
       <div class="video-container">
-        <div class="video-label top">LOUDER</div>
-        <div class="video-label left">HIGH STRINGS</div>
-        <div class="video-label bottom">SOFTER</div>
-        <div class="video-label right">LOW STRINGS</div>
+        <div class="video-label top">大聲</div>
+        <div class="video-label left">高音弦樂</div>
+        <div class="video-label bottom">小聲</div>
+        <div class="video-label right">低音弦樂</div>
 
         <div class="video-border">
           <div class="calibration-overlay">
@@ -244,7 +247,7 @@ under the License.
         </div>
       </div>
       <div class="instructions">
-        <p>Fit your body in frame, Maestro. This is a one person experiment.</p>
+        <p>請讓全身進入畫面。這個體驗一次適合一位指揮。</p>
       </div>
     </div>
   </section>

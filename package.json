@@ -10,7 +10,7 @@
     "build-start": "mv src/config.js src/config.build.js && mv src/config.prod.js src/config.js",
     "build-parcel": "parcel build src/index.html --out-dir dist/static/ --public-url '/static/'",
     "build-finish": "mv dist/static/index.html dist/ && cp src/app.yaml dist/ && mv src/config.js src/config.prod.js && mv src/config.build.js src/config.js",
-    "build": "rm -rf dist/ && yarn run build-start && yarn run build-parcel && yarn run build-finish"
+    "build": "node scripts/build.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
