@@ -24,21 +24,36 @@ import 'babel-polyfill';
 
 const overlay = document.querySelector('.gesture-start-overlay');
 const button = document.querySelector('.gesture-start-button');
+const songChoices = document.querySelectorAll('input[name="song-choice"]');
 
 let hasStarted = false;
+
+function updateSelectedSongStyle() {
+  songChoices.forEach((choice) => {
+    choice.parentNode.classList.toggle('selected', choice.checked);
+  });
+}
+
+function getSelectedSongId() {
+  const selected = Array.prototype.find.call(songChoices, (choice) => choice.checked);
+  return selected ? selected.value : 'nachtmusik';
+}
 
 async function beginExperience() {
   if (hasStarted) return;
   hasStarted = true;
 
   button.disabled = true;
+  songChoices.forEach((choice) => {
+    choice.disabled = true;
+  });
   button.innerHTML = '啟動中...';
 
   try {
     // Load the old app only after a click/tap. Modern Chrome blocks Web Audio
     // contexts that are created or resumed before a user gesture.
     const appModule = require('./main');
-    await appModule.startApp();
+    await appModule.startApp(getSelectedSongId());
     overlay.classList.add('hidden');
     setTimeout(() => {
       overlay.parentNode.removeChild(overlay);
@@ -46,6 +61,9 @@ async function beginExperience() {
   } catch (error) {
     hasStarted = false;
     button.disabled = false;
+    songChoices.forEach((choice) => {
+      choice.disabled = false;
+    });
     button.innerHTML = '再試一次';
     console.error('Semi-Conductor failed to start:', error);
   }
@@ -56,3 +74,7 @@ button.addEventListener('touchend', (event) => {
   event.preventDefault();
   beginExperience();
 });
+songChoices.forEach((choice) => {
+  choice.addEventListener('change', updateSelectedSongStyle);
+});
+updateSelectedSongStyle();

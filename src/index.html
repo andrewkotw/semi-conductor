@@ -74,6 +74,18 @@ under the License.
 <!-- Hey nice, there's a bit of room down here for the body -->
 <body>
   <div class="gesture-start-overlay">
+    <div class="song-select" role="radiogroup" aria-label="選擇樂曲">
+      <label class="song-select-option">
+        <input class="song-select-input" type="radio" name="song-choice" value="nachtmusik" checked>
+        <span class="song-select-control"></span>
+        <span>Eine Kleine Nachtmusik</span>
+      </label>
+      <label class="song-select-option">
+        <input class="song-select-input" type="radio" name="song-choice" value="senbonzakura">
+        <span class="song-select-control"></span>
+        <span>千本櫻 Senbonzakura</span>
+      </label>
+    </div>
     <button class="button-large gesture-start-button">
       點一下開始
     </button>

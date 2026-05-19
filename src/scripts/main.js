@@ -27,11 +27,18 @@ import PoseController from './pose-controller';
 
 // Import json files
 import config from '../config.js';
-import song from '../assets/song.json';
+import nachtmusikSong from '../assets/song.json';
+import senbonzakuraSong from '../assets/song.senbonzakura.json';
+
+const songs = {
+  nachtmusik: nachtmusikSong,
+  senbonzakura: senbonzakuraSong
+};
 
 class App {
-  constructor(config) {
+  constructor(config, song) {
     this.config = config;
+    this.song = song;
 
     this.state = {
       loaded: false,
@@ -172,5 +179,7 @@ export async function startApp() {
   // Modern Chrome requires Web Audio to be resumed or created after a user
   // gesture. boot.js calls this from the full-screen start overlay click/tap.
   await resumeAudioContext();
-  return new App(config);
+  const songId = arguments[0] || 'nachtmusik';
+  const selectedSong = songs[songId] || songs.nachtmusik;
+  return new App(config, selectedSong);
 }
