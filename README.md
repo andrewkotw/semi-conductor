@@ -1,4 +1,6 @@
-# Semi-Conductor Classroom Edition
+# Semi-Conductor Taiwanese Classroom Edition
+
+[Try it here!](https://semi-conductor-kappa.vercel.app)
 
 This fork is a classroom-friendly rescue version of Google Creative Lab's archived
 Semi-Conductor experiment. It keeps the original Parcel 1, Tone.js, TensorFlow.js,
