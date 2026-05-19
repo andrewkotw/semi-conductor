@@ -29,10 +29,12 @@ import PoseController from './pose-controller';
 import config from '../config.js';
 import nachtmusikSong from '../assets/song.json';
 import senbonzakuraSong from '../assets/song.senbonzakura.json';
+import senbonzakuraEnsembleSong from '../assets/song.senbonzakura.ensemble.json';
 
 const songs = {
   nachtmusik: nachtmusikSong,
-  senbonzakura: senbonzakuraSong
+  senbonzakura: senbonzakuraSong,
+  senbonzakuraEnsemble: senbonzakuraEnsembleSong
 };
 
 class App {
