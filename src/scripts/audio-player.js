@@ -63,102 +63,72 @@ export default class AudioPlayer {
   getSynthSettings(instrument) {
     const settings = {
       violin: {
-        voice: Tone.FMSynth,
-        voices: 10,
+        voice: Tone.Synth,
+        voices: 8,
+        velocityScale: 0.82,
         options: {
-          harmonicity: 1.4,
-          modulationIndex: 4,
-          oscillator: { type: 'sine' },
+          oscillator: { type: 'triangle' },
           envelope: {
-            attack: 0.04,
-            decay: 0.12,
+            attack: 0.025,
+            decay: 0.08,
             sustain: 0.55,
-            release: 0.9
-          },
-          modulation: { type: 'triangle' },
-          modulationEnvelope: {
-            attack: 0.08,
-            decay: 0.2,
-            sustain: 0.25,
-            release: 0.6
+            release: 0.55
           }
         }
       },
       'string ensemble 1': {
         voice: Tone.Synth,
-        voices: 14,
+        voices: 8,
+        velocityScale: 0.62,
         options: {
-          oscillator: { type: 'sine' },
+          oscillator: { type: 'triangle' },
           envelope: {
-            attack: 0.08,
-            decay: 0.15,
-            sustain: 0.6,
-            release: 1.1
+            attack: 0.04,
+            decay: 0.1,
+            sustain: 0.42,
+            release: 0.7
           }
         }
       },
       viola: {
         voice: Tone.Synth,
-        voices: 10,
+        voices: 8,
+        velocityScale: 0.68,
         options: {
           oscillator: { type: 'triangle' },
           envelope: {
-            attack: 0.05,
-            decay: 0.14,
-            sustain: 0.5,
-            release: 0.85
+            attack: 0.035,
+            decay: 0.1,
+            sustain: 0.45,
+            release: 0.65
           }
         }
       },
       cello: {
-        voice: Tone.MonoSynth,
+        voice: Tone.Synth,
         voices: 8,
+        velocityScale: 0.72,
         options: {
           oscillator: { type: 'triangle' },
-          filter: {
-            Q: 1,
-            type: 'lowpass',
-            rolloff: -24
-          },
           envelope: {
-            attack: 0.04,
-            decay: 0.18,
-            sustain: 0.58,
-            release: 0.9
-          },
-          filterEnvelope: {
-            attack: 0.06,
-            decay: 0.25,
-            sustain: 0.35,
-            release: 0.8,
-            baseFrequency: 180,
-            octaves: 2.2
+            attack: 0.025,
+            decay: 0.12,
+            sustain: 0.5,
+            release: 0.65
           }
         }
       },
       contrabass: {
-        voice: Tone.MonoSynth,
+        voice: Tone.Synth,
         voices: 6,
+        velocityScale: 0.72,
         options: {
-          oscillator: { type: 'sine' },
-          filter: {
-            Q: 1,
-            type: 'lowpass',
-            rolloff: -24
-          },
+          oscillator: { type: 'triangle' },
           envelope: {
             attack: 0.02,
-            decay: 0.2,
-            sustain: 0.62,
-            release: 1.0
-          },
-          filterEnvelope: {
-            attack: 0.03,
-            decay: 0.25,
-            sustain: 0.28,
-            release: 0.9,
-            baseFrequency: 80,
-            octaves: 2
+            decay: 0.12,
+            sustain: 0.48,
+            release: 0.7
           }
         }
       }
@@ -175,6 +145,7 @@ export default class AudioPlayer {
       const synth = this.getSynthSettings(track.instrument);
 
       this.activeInstruments.push(track.instrument);
+      track.velocityScale = synth.velocityScale;
       track.sampler = new Tone.PolySynth(synth.voices, synth.voice, synth.options)
         .chain(effects.gain, effects.jcReverb, effects.reverb, Tone.Master);
     });
@@ -211,7 +182,7 @@ export default class AudioPlayer {
           min: config.detection.minimumDuration
         });
 
-        const velocity = constrain(this.velocity, {
+        const velocity = constrain(this.velocity * (track.velocityScale || 1), {
           max: config.detection.maximumVelocity,
           min: config.detection.minimumVelocity
         });
