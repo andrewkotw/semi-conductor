@@ -23,8 +23,10 @@ required.
 
 ## Quick Start
 
-Use Node 12-16 for this archived Parcel 1 project. Newer Node versions can fail
-while loading old native dependencies used by Parcel.
+Use Node 12-16 for local development of this archived Parcel 1 project. Newer
+Node versions can fail while loading old native dependencies used by Parcel.
+The package advertises Node 24 only so Vercel will accept the static deploy; the
+checked-in `.yarnrc` lets Yarn ignore that engine value for local Parcel builds.
 
 ```sh
 yarn
@@ -146,14 +148,18 @@ it to students.
 
 ## Deploying To Vercel
 
+Vercel no longer accepts the old Node versions that Parcel 1 needs, so this fork
+deploys the prebuilt `dist` directory. Build locally with Node 12-16, commit
+`dist`, and let `vercel.json` skip install/build on Vercel.
+
 Use these Vercel project settings:
 
 ```txt
 Framework Preset: Other
-Install Command: yarn
-Build Command: yarn build
+Install Command: echo Skipping install; using prebuilt dist
+Build Command: echo Skipping build; using prebuilt dist
 Output Directory: dist
-Node.js Version: 16.x
+Node.js Version: 24.x
 ```
 
 The webcam requires HTTPS for students on other computers, so deploy to Vercel or

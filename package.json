@@ -6,7 +6,7 @@
   "author": "Rupert Parry",
   "license": "MIT",
   "engines": {
-    "node": ">=12 <17"
+    "node": "24.x"
   },
   "scripts": {
     "start": "parcel src/index.html --out-dir build/",

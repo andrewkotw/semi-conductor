@@ -2,6 +2,5 @@
 yarn-error.log
 yarn.lock
 node_modules
-dist
 build
 src/index.html
