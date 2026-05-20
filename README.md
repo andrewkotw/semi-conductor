@@ -156,8 +156,8 @@ Use these Vercel project settings:
 
 ```txt
 Framework Preset: Other
-Install Command: echo Skipping install; using prebuilt dist
-Build Command: echo Skipping build; using prebuilt dist
+Install Command: echo Skipping install using prebuilt dist
+Build Command: echo Skipping build using prebuilt dist
 Output Directory: dist
 Node.js Version: 24.x
 ```
