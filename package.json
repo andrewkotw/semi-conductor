@@ -5,6 +5,9 @@
   "main": "src/index.html",
   "author": "Rupert Parry",
   "license": "MIT",
+  "engines": {
+    "node": ">=12 <17"
+  },
   "scripts": {
     "start": "parcel src/index.html --out-dir build/",
     "build-start": "mv src/config.js src/config.build.js && mv src/config.prod.js src/config.js",

@@ -28,11 +28,18 @@ try {
   rename(config, buildConfig);
   rename(prodConfig, config);
 
-  childProcess.execFileSync(
-    path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'parcel.cmd' : 'parcel'),
-    ['build', 'src/index.html', '--out-dir', 'dist/static/', '--public-url', '/static/'],
-    { cwd: root, stdio: 'inherit' }
-  );
+  if (process.platform === 'win32') {
+    childProcess.execSync(
+      'call node_modules\\.bin\\parcel.cmd build src/index.html --out-dir dist/static/ --public-url /static/',
+      { cwd: root, stdio: 'inherit', shell: 'cmd.exe' }
+    );
+  } else {
+    childProcess.execFileSync(
+      path.join(root, 'node_modules', '.bin', 'parcel'),
+      ['build', 'src/index.html', '--out-dir', 'dist/static/', '--public-url', '/static/'],
+      { cwd: root, stdio: 'inherit' }
+    );
+  }
 
   rename(path.join(dist, 'static', 'index.html'), path.join(dist, 'index.html'));
   fs.copyFileSync(path.join(src, 'app.yaml'), path.join(dist, 'app.yaml'));

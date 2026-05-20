@@ -26,6 +26,10 @@ import { getBeatLengthFromTempo, constrain } from './helpers';
 export default class AudioPlayer {
   constructor(props) {
     this.props = props;
+    this.tempoLimits = props.tempoLimits || {
+      minimumBpm: config.detection.minimumBpm,
+      maximumBpm: config.detection.maximumBpm
+    };
     this.activeInstruments = [];
     this.velocity = 0.7;  // Arbitrary starting point that will be overridden by user
     this.finishedInstruments = 0;
@@ -37,7 +41,7 @@ export default class AudioPlayer {
   setTempo(tempo) {
     Tone.Transport.bpm.value = constrain(tempo, {
       min: 0,
-      max: config.detection.maximumBpm
+      max: this.tempoLimits.maximumBpm
     });
   }
 
@@ -162,6 +166,13 @@ export default class AudioPlayer {
       this.queueTrack(track, track.sampler);
     });
 
+    // Some arranged classroom songs end with sustained notes or sparse final
+    // measures. Schedule an explicit finish event so the rose/applause screen
+    // does not depend on another note starting exactly at the calculated end.
+    Tone.Transport.scheduleOnce(() => {
+      this.props.setSongProgress(100);
+    }, song.duration);
+
     Tone.Transport.position = startTime;
   }
 
@@ -171,12 +182,12 @@ export default class AudioPlayer {
 
     new Tone.Part((time, note) => {
       const measures = parseInt(Tone.Transport.position.split(':')[0]) + 1;
-      this.props.setSongProgress(100 * measures / this.totalMeasures)
+      this.props.setSongProgress(Math.min(100, 100 * measures / this.totalMeasures))
 
       // Only play the instrument this bar if it's active
       if (this.activeInstruments.includes(track.instrument)) {
         // Adjust note duration based on tempo (slower tempo = longer notes)
-        const durationRatio = this.startingBpm / Math.max(Tone.Transport.bpm.value, config.detection.minimumBpm);
+        const durationRatio = this.startingBpm / Math.max(Tone.Transport.bpm.value, this.tempoLimits.minimumBpm);
         const duration = constrain(note.duration * durationRatio, {
           max: config.detection.maximumDuration,
           min: config.detection.minimumDuration

@@ -6,6 +6,10 @@ const input = args[0];
 const output = args[1] || path.join('src', 'assets', 'song.generated.json');
 const maxSecondsIndex = args.indexOf('--max-seconds');
 const maxSeconds = maxSecondsIndex >= 0 ? Number(args[maxSecondsIndex + 1]) : null;
+const trackMapIndex = args.indexOf('--track-map');
+const trackMapArg = trackMapIndex >= 0 ? args[trackMapIndex + 1] : null;
+const songNameIndex = args.indexOf('--name');
+const songName = songNameIndex >= 0 ? args[songNameIndex + 1] : null;
 
 if (!input) {
   console.error('Usage: node scripts/midi-to-song-json.js input.mid [output.json]');
@@ -21,6 +25,22 @@ const APP_INSTRUMENTS = [
 ];
 
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+function parseTrackMap(value) {
+  if (!value) return null;
+
+  return value.split(',').reduce((map, item) => {
+    const separator = item.indexOf(':');
+    if (separator < 0) throw new Error(`Invalid --track-map item "${item}". Use trackNumber:instrument.`);
+
+    const trackNumber = Number(item.slice(0, separator).trim());
+    const instrument = item.slice(separator + 1).trim();
+    if (!trackNumber || !instrument) throw new Error(`Invalid --track-map item "${item}".`);
+
+    map.set(trackNumber, instrument);
+    return map;
+  }, new Map());
+}
 
 function readVarLen(buffer, state) {
   let value = 0;
@@ -195,7 +215,7 @@ function parseMidi(buffer) {
     }
 
     state.offset = trackEnd;
-    tracks.push({ names, notes });
+    tracks.push({ index: trackIndex + 1, names, notes });
   }
 
   return { format, division, tracks, tempoEvents };
@@ -205,12 +225,18 @@ const midi = parseMidi(fs.readFileSync(input));
 const tempoMap = buildTempoMap(midi.tempoEvents, midi.division);
 const bpm = tempoMap[0].bpm;
 const used = new Set();
+const explicitTrackMap = parseTrackMap(trackMapArg);
+const selectedMidiTracks = explicitTrackMap
+  ? Array.from(explicitTrackMap.entries()).map(([trackNumber, instrument]) => {
+      const track = midi.tracks[trackNumber - 1];
+      if (!track) throw new Error(`Track ${trackNumber} was not found in ${input}.`);
+      return { ...track, forcedInstrument: instrument };
+    }).filter((track) => track.notes.length)
+  : midi.tracks.filter((track) => track.notes.length).slice(0, APP_INSTRUMENTS.length);
 
-const tracks = midi.tracks
-  .filter((track) => track.notes.length)
-  .slice(0, APP_INSTRUMENTS.length)
+const convertedTracks = selectedMidiTracks
   .map((track) => {
-    const instrument = chooseInstrument(track, used);
+    const instrument = track.forcedInstrument || chooseInstrument(track, used);
     used.add(instrument);
 
     const notes = track.notes
@@ -249,6 +275,20 @@ const tracks = midi.tracks
     };
   });
 
+const tracks = [];
+convertedTracks.forEach((track) => {
+  const existing = explicitTrackMap && tracks.find((item) => item.instrument === track.instrument);
+  if (!existing) {
+    tracks.push(track);
+    return;
+  }
+
+  existing.notes = existing.notes.concat(track.notes).sort((a, b) => a.time - b.time || a.midi - b.midi);
+  existing.length = existing.notes.length;
+  existing.duration = existing.notes.reduce((max, note) => Math.max(max, note.time + note.duration), 0);
+  if (track.name) existing.name = `${existing.name || existing.instrument} + ${track.name}`;
+});
+
 const duration = tracks.reduce((max, track) => Math.max(max, track.duration), 0);
 
 const song = {
@@ -256,7 +296,7 @@ const song = {
     PPQ: midi.division,
     bpm,
     timeSignature: [4, 4],
-    name: path.basename(input).replace(/\.midi?$/i, '').replace(/\.mid$/i, '')
+    name: songName || path.basename(input).replace(/\.midi?$/i, '').replace(/\.mid$/i, '')
   },
   startTime: 0,
   duration,

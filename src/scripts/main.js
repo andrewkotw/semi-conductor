@@ -30,17 +30,25 @@ import config from '../config.js';
 import nachtmusikSong from '../assets/song.json';
 import senbonzakuraSong from '../assets/song.senbonzakura.json';
 import senbonzakuraEnsembleSong from '../assets/song.senbonzakura.ensemble.json';
+import kimiQuartetSong from '../assets/song.kimi-quartet.json';
+import canonFaucherSong from '../assets/song.canon-faucher.json';
 
 const songs = {
   nachtmusik: nachtmusikSong,
   senbonzakura: senbonzakuraSong,
-  senbonzakuraEnsemble: senbonzakuraEnsembleSong
+  senbonzakuraEnsemble: senbonzakuraEnsembleSong,
+  kimiQuartet: kimiQuartetSong,
+  canonFaucher: canonFaucherSong
 };
 
 class App {
   constructor(config, song) {
     this.config = config;
     this.song = song;
+    this.tempoLimits = {
+      minimumBpm: song.header.minimumBpm || config.detection.minimumBpm,
+      maximumBpm: song.header.maximumBpm || config.detection.maximumBpm
+    };
 
     this.state = {
       loaded: false,
@@ -62,6 +70,7 @@ class App {
 
     this.audioPlayer = new AudioPlayer({
       song: song,
+      tempoLimits: this.tempoLimits,
       setInstrumentsLoaded: this.setInstrumentsLoaded.bind(this),
       setSongProgress: this.setSongProgress.bind(this),
       triggerAnimation: this.renderer.triggerAnimation.bind(this.renderer)
@@ -110,8 +119,9 @@ class App {
   }
 
   setSongProgress(percentage) {
-    this.renderer.renderSongProgress(percentage);
-    if (percentage >= 99.9 && !this.state.finished) {
+    const progress = Math.min(100, percentage);
+    this.renderer.renderSongProgress(progress);
+    if (progress >= 99.5 && !this.state.finished) {
       this.state.finished = true;
       this.renderer.renderFinishPage();
     }
@@ -121,8 +131,9 @@ class App {
   setTempo(tempo) {
     // Sanity check just in case.
     if (!(tempo > 0) || tempo == Infinity) return;
-    this.renderer.renderTempo(tempo);
-    this.audioPlayer.setTempo(tempo);
+    const limitedTempo = Math.min(this.tempoLimits.maximumBpm, Math.max(this.tempoLimits.minimumBpm, tempo));
+    this.renderer.renderTempo(limitedTempo);
+    this.audioPlayer.setTempo(limitedTempo);
   }
 
   /* Called when resuming motion in PoseController */
